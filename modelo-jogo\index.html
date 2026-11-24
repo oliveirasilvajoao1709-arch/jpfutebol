@@ -1,48 +1,114 @@
-<!doctype html>
-<html lang="pt-BR" data-theme="light">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
-    <title>Modelo de Jogo — Jogos VR</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="app">
-      <header class="top">
-        <div>
-          <span class="kicker">Modelo</span>
-          <h1 id="title">Clique no Alvo</h1>
-          <p class="subtitle">Troque este jogo pelo seu. O contrato já está pronto.</p>
-        </div>
-        <button id="restart" class="btn" type="button">Reiniciar</button>
-      </header>
-
-      <main>
-        <div class="hud">
-          <span class="pill">Alvos: <strong id="score">0</strong>/<span id="total">10</span></span>
-          <span class="pill">Tempo: <strong id="timer">0,0s</strong></span>
-        </div>
-
-        <div id="board" class="board" aria-label="Área do jogo">
-          <p id="start-hint" class="start-hint">Clique no alvo para começar</p>
-        </div>
-      </main>
-
-      <footer class="bottom">
-        <p>Este é o arquivo <code>game.js</code>. Leia os comentários e adapte.</p>
-      </footer>
-    </div>
-
-    <div id="result" class="overlay" hidden>
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="result-title">
-        <div class="modal-icon" aria-hidden="true">🎯</div>
-        <h2 id="result-title">Muito bem!</h2>
-        <p id="result-text">Você concluiu o jogo.</p>
-        <button id="play-again" class="btn btn-primary full" type="button">Jogar de novo</button>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copa Escolar de Botão</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <!-- Cabeçalho com placar e controles -->
+    <header class="cabecalho">
+      <div class="titulo-area">
+        <h1>Copa Escolar de Botão</h1>
+        <p class="subtitulo">Apite o lance certo e marque o gol!</p>
       </div>
-    </div>
+      <div class="controles-topo">
+        <span id="placar-texto" class="badge">Gols: 0</span>
+        <span id="rodada-texto" class="badge">Lance: 1 / 8</span>
+        <button id="btn-tema" class="btn-secundario" type="button" aria-label="Alternar tema claro e escuro">
+          Tema
+        </button>
+      </div>
+    </header>
 
-    <script src="game.js"></script>
-  </body>
+    <!-- Tela inicial -->
+    <section id="tela-inicio" class="painel ativo">
+      <h2>Como jogar</h2>
+      <p>
+        Você é o juiz da partida! Leia o que aconteceu na jogada e decida qual punição aplicar:
+      </p>
+      <ul class="lista-regras">
+        <li><strong>Apito (Só falta):</strong> Infração leve, sem necessidade de cartão.</li>
+        <li><strong>Cartão Amarelo:</strong> Falta imprudente, segurar o adversário ou reclamação.</li>
+        <li><strong>Cartão Vermelho:</strong> Falta muito grave, agressão ou impedir gol claro com a mão.</li>
+      </ul>
+      <p class="dica-controle">
+        <strong>Dica:</strong> Arraste o cartão até o jogador vermelho que fez a falta (ou toque no cartão e depois no jogador). Se acertar, você marca o gol!
+      </p>
+      <button id="btn-iniciar" class="btn-principal" type="button">Começar Partida</button>
+    </section>
+
+    <!-- Tela principal do jogo -->
+    <section id="tela-jogo" class="painel" aria-live="polite">
+      <div class="cartao-lance">
+        <span id="nivel-lance" class="etiqueta-nivel">Nível 1 - Básico</span>
+        <p id="descricao-lance" class="texto-lance">Carregando lance...</p>
+      </div>
+
+      <!-- Campo de futebol de botão visto de cima -->
+      <div class="campo" id="campo-jogo">
+        <div class="linha-meio"></div>
+        <div class="circulo-central"></div>
+        <div class="area-gol">
+          <div class="trave"></div>
+          <!-- Botão do Goleiro -->
+          <div id="botao-goleiro" class="botao-jogador goleiro" title="Goleiro">
+            <span>GK</span>
+          </div>
+        </div>
+
+        <!-- Bola de botão -->
+        <div id="bola" class="bola" aria-hidden="true"></div>
+
+        <!-- Botão do Atacante (seu time) -->
+        <div id="botao-atacante" class="botao-jogador atacante" title="Seu atacante">
+          <span>9</span>
+        </div>
+
+        <!-- Botão do Infrator (alvo onde o cartão deve ser solto ou clicado) -->
+        <div id="botao-infrator" class="botao-jogador infrator" role="button" tabindex="0" aria-label="Jogador que cometeu a falta. Solte o cartão aqui ou clique para aplicar.">
+          <span>4</span>
+          <span class="aviso-alvo">Falta!</span>
+        </div>
+      </div>
+
+      <!-- Área com os cartões para arrastar ou clicar -->
+      <div class="area-cartoes" role="group" aria-label="Opções de punição do juiz">
+        <button class="cartao-opcao apito" draggable="true" data-tipo="apito" type="button">
+          <span class="icone-cartao">📢</span>
+          <span>Só Apito</span>
+        </button>
+
+        <button class="cartao-opcao amarelo" draggable="true" data-tipo="amarelo" type="button">
+          <span class="icone-cartao">🟨</span>
+          <span>Amarelo</span>
+        </button>
+
+        <button class="cartao-opcao vermelho" draggable="true" data-tipo="vermelho" type="button">
+          <span class="icone-cartao">🟥</span>
+          <span>Vermelho</span>
+        </button>
+      </div>
+
+      <!-- Caixa de explicação após cada jogada -->
+      <div id="caixa-feedback" class="feedback oculto">
+        <p id="feedback-titulo" class="feedback-titulo"></p>
+        <p id="feedback-explicacao" class="feedback-texto"></p>
+        <button id="btn-proximo" class="btn-principal" type="button">Próximo Lance</button>
+      </div>
+    </section>
+
+    <!-- Tela final -->
+    <section id="tela-fim" class="painel">
+      <h2>Apito Final!</h2>
+      <p id="resultado-final" class="destaque-final">Você marcou 0 de 8 gols!</p>
+      <p id="mensagem-final" class="texto-final"></p>
+      <button id="btn-reiniciar" class="btn-principal" type="button">Jogar Novamente</button>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
 </html>
